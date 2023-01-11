@@ -1,16 +1,32 @@
 package org.qa_scooter;
 
+import io.restassured.response.ValidatableResponse;
+
+import static io.restassured.RestAssured.given;
+
 public class CreateCourier {
     String login;
     String password;
     String firstName;
 
-    public CreateCourier(String login, String password, String firstName){
+    public CreateCourier (String login, String password, String firstName){
         this.login = login;
         this.password = password;
         this.firstName = firstName;
     }
     public CreateCourier() {
+    }
+
+    public CreateCourier(String defaultLogin) {
+    }
+
+    public ValidatableResponse create (CreateCourier courier){
+      return given()
+              .header("Content-type", "application/json")
+              .body(courier)
+              .when()
+              .post("/api/v1/courier").then();
+
     }
 
     public String getLogin() {
