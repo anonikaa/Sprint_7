@@ -1,57 +1,68 @@
 import io.restassured.RestAssured;
 import io.restassured.response.ValidatableResponse;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.qa_scooter.CreateCourier;
-import org.qa_scooter.Data.*;
+import org.qa_scooter.Courier;
+import org.qa_scooter.CourierCreds;
+import org.qa_scooter.CourierHandles;
+
 import static org.junit.Assert.assertEquals;
 import static org.qa_scooter.Data.*;
 
 public class createCourierTest {
+    private Courier courier;
+    private CourierHandles courierHandles;
+    private CourierCreds courierCreds;
+    public int id;
     @Before
     public void setUp() {
         //вынести в отдельный класс
         RestAssured.baseURI = "https://qa-scooter.praktikum-services.ru/";
+        courierHandles = new CourierHandles();
     }
+    //дописать месседж ок true
     @Test
     public void successCreateCourier() {
-        CreateCourier courier  = new CreateCourier(DEFAULT_LOGIN, DEFAULT_PASSWORD, DEFAULT_NAME);
-        ValidatableResponse response = courier.create(courier);
+        courier = new Courier(DEFAULT_LOGIN, DEFAULT_PASSWORD, DEFAULT_NAME);
+        courierCreds = new CourierCreds(courier.getLogin(), courier.getPassword()); //получаем креды именно этого курьера для логина
+
+        ValidatableResponse response = courierHandles.create(courier);
         assertEquals(201, response.extract().statusCode());
+        ValidatableResponse loginResponse = courierHandles.login(courierCreds); //логин нужен для получения айдишника
+        id = loginResponse.extract().path("id"); //айдишник нужен чтобы почистить за собой
+        courierHandles.delete(id);
     }
     @Test
     public void cantCreateTheSameCourier(){
-        CreateCourier courier  = new CreateCourier(DEFAULT_LOGIN, DEFAULT_PASSWORD, DEFAULT_NAME);
-        ValidatableResponse response = courier.create(courier);
+        courier  = new Courier(EXIST_LOGIN, DEFAULT_PASSWORD, DEFAULT_NAME);
+        ValidatableResponse response = courierHandles.create(courier);
         assertEquals(409, response.extract().statusCode());
         assertEquals("Этот логин уже используется", response.extract().path("message"));
     }
     @Test
     public void cantCreateCourierWithoutLogin(){
-        CreateCourier courier  = new CreateCourier(EMPTY_FIELD, DEFAULT_PASSWORD, DEFAULT_NAME);
-        ValidatableResponse response = courier.create(courier);
+        courier  = new Courier(EMPTY_FIELD, DEFAULT_PASSWORD, DEFAULT_NAME);
+        ValidatableResponse response = courierHandles.create(courier);
         assertEquals(400, response.extract().statusCode());
         assertEquals("Недостаточно данных для создания учетной записи", response.extract().path("message"));
-        String message = response.extract().path("message");
-        System.out.println(message);
     }
     @Test
     public void cantCreateCourierWithoutPassword(){
-        CreateCourier courier  = new CreateCourier(DEFAULT_LOGIN, EMPTY_FIELD, DEFAULT_NAME);
-        ValidatableResponse response = courier.create(courier);
+        courier  = new Courier(DEFAULT_LOGIN, EMPTY_FIELD, DEFAULT_NAME);
+        ValidatableResponse response = courierHandles.create(courier);
         assertEquals(400, response.extract().statusCode());
         assertEquals("Недостаточно данных для создания учетной записи", response.extract().path("message"));
-        String message = response.extract().path("message");
-        System.out.println(message);
     }
     @Test
-    public void cantCreateCourierWithoutName(){
-        CreateCourier courier  = new CreateCourier(DEFAULT_LOGIN, DEFAULT_PASSWORD, EMPTY_FIELD);
-        ValidatableResponse response = courier.create(courier);
-        assertEquals(400, response.extract().statusCode());
-        assertEquals("Недостаточно данных для создания учетной записи", response.extract().path("message"));
-        String message = response.extract().path("message");
-        System.out.println(message);
+    public void successCreateCourierWithoutName(){
+        courier  = new Courier(DEFAULT_LOGIN, DEFAULT_PASSWORD, EMPTY_FIELD);
+        courierCreds = new CourierCreds(courier.getLogin(), courier.getPassword()); //получаем креды именно этого курьера для логина
+        ValidatableResponse response = courierHandles.create(courier);
+        assertEquals(201, response.extract().statusCode());
+        ValidatableResponse loginResponse = courierHandles.login(courierCreds); //логин нужен для получения айдишника
+        id = loginResponse.extract().path("id"); //айдишник нужен чтобы почистить за собой
+        courierHandles.delete(id);
     }
 
 }
