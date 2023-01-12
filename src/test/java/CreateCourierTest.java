@@ -1,6 +1,5 @@
 import io.restassured.RestAssured;
 import io.restassured.response.ValidatableResponse;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.qa_scooter.Courier;
@@ -10,14 +9,13 @@ import org.qa_scooter.CourierHandles;
 import static org.junit.Assert.assertEquals;
 import static org.qa_scooter.Data.*;
 
-public class createCourierTest {
+public class CreateCourierTest {
     private Courier courier;
     private CourierHandles courierHandles;
     private CourierCreds courierCreds;
     public int id;
     @Before
     public void setUp() {
-        //вынести в отдельный класс
         RestAssured.baseURI = "https://qa-scooter.praktikum-services.ru/";
         courierHandles = new CourierHandles();
     }
