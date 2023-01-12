@@ -1,3 +1,5 @@
+package courierTests;
+
 import io.restassured.RestAssured;
 import io.restassured.response.ValidatableResponse;
 import org.junit.Before;
