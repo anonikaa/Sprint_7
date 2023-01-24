@@ -38,7 +38,7 @@ public class CreateCourierTest {
         courier  = new Courier(EXIST_LOGIN, DEFAULT_PASSWORD, DEFAULT_NAME);
         ValidatableResponse response = courierHandles.create(courier);
         assertEquals(409, response.extract().statusCode());
-        assertEquals("Этот логин уже используется", response.extract().path("message"));
+        assertEquals("Этот логин уже используется. Попробуйте другой.", response.extract().path("message"));
     }
     @Test
     public void cantCreateCourierWithoutLogin(){
